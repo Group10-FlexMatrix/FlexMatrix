@@ -15,6 +15,5 @@ public class Benchmark {
     public double getExecutionTime() {
         return (endTime - startTime) / 1e9;
     }
-
 }
 

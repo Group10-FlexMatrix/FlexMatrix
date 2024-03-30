@@ -20,6 +20,7 @@ public class Utils {
 
     public static String matrixToString(int[][] matrix) {
         return Arrays.stream(matrix)
+                .parallel()
                 .map(row -> Arrays.stream(row).mapToObj(String::valueOf).collect(Collectors.joining(" ")))
                 .collect(Collectors.joining("\n"));
     }
@@ -32,5 +33,4 @@ public class Utils {
                         .toArray())
                 .toArray(int[][]::new);
     }
-
 }
