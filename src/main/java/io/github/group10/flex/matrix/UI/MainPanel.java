@@ -8,7 +8,7 @@ public class MainPanel extends JPanel  {
     private OutputPanel output;
 
     public MainPanel() {
-       setLayout(new GridLayout(1,1, 20, 0));
+        setLayout(new GridLayout(1,1, 20, 0));
         createComponents();
         layoutComponents();
     }

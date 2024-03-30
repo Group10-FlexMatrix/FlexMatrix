@@ -4,8 +4,6 @@ import io.github.group10.flex.matrix.Utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,58 +54,39 @@ public class MatrixInputPanel extends JPanel {
     }
 
     private void addListeners() {
-        setSizeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                inputMatrixSize();
+        setSizeButton.addActionListener(e -> inputMatrixSize());
+
+
+        randomButton.addActionListener(e -> {
+            if (!hasSetSize) {
+                if (inputMatrixSize() == -1) return;
             }
+            matrixValues = Utils.randomMatrixParallel(rows, cols, 0, 9);
+            matrixInputArea.setText(Utils.matrixToString(matrixValues));
         });
 
+        clearButton.addActionListener(e -> {
+            matrixInputArea.setText("");
+            matrixValues = null;
+        });
 
-        randomButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!hasSetSize) {
-                    if (inputMatrixSize() == -1) return;
+        importFromFileButton.addActionListener(e -> {
+            try {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(MatrixInputPanel.this);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    matrixInputArea.setText(Files.readString(file.toPath()));
+                    matrixValues = parseMatrix();
                 }
-                matrixValues = Utils.randomMatrixParallel(rows, cols, 0, 9);
-                matrixInputArea.setText(Utils.matrixToString(matrixValues));
+            } catch (IOException exception) {
+                JOptionPane.showMessageDialog(MatrixInputPanel.this, "Error reading file: " + exception.getMessage(),
+                        "Error Matrix " + matrixName, JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        clearButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                matrixInputArea.setText("");
-                matrixValues = null;
-            }
-        });
-
-        importFromFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    JFileChooser fileChooser = new JFileChooser();
-                    int result = fileChooser.showOpenDialog(MatrixInputPanel.this);
-
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        File file = fileChooser.getSelectedFile();
-                        matrixInputArea.setText(Files.readString(file.toPath()));
-                        matrixValues = parseMatrix();
-                    }
-                } catch (IOException exception) {
-                    JOptionPane.showMessageDialog(MatrixInputPanel.this, "Error reading file: " + exception.getMessage(),
-                            "Error Matrix " + matrixName, JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        parseMatrixButton.addActionListener((new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                matrixValues = parseMatrix();
-            }
-        }));
+        parseMatrixButton.addActionListener(actionEvent -> matrixValues = parseMatrix());
     }
 
     private int inputMatrixSize() {
