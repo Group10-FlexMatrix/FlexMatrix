@@ -1,7 +1,9 @@
-public class Naive_Algorithm {
+package io.github.group10.flex.matrix.Algorithm;
+
+public class Native {
     private final int[][] A, B;
 
-    public Naive_Algorithm(int[][] A, int[][] B) {
+    public Native(int[][] A, int[][] B) {
         this.A = A;
         this.B = B;
     }

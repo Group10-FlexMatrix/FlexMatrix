@@ -1,11 +1,14 @@
+package io.github.group10.flex.matrix.Algorithm;
+
 import java.util.concurrent.RecursiveTask;
 
-public class DaC_Algorithm extends RecursiveTask<int[][]> {
+public class DaC extends RecursiveTask<int[][]> {
     private final int[][] A, B;
     private final int A_m, A_n, B_p, B_q;
     private final int A_rowL, A_rowR, A_colL, A_colR, B_rowL, B_rowR, B_colL, B_colR;
     private final int THRESHOLD;
-    public DaC_Algorithm(int thresh, int[][] A, int[][] B,  int A_rowL, int A_rowR, int A_colL, int A_colR, int B_rowL, int B_rowR, int B_colL, int B_colR){
+
+    public DaC(int thresh, int[][] A, int[][] B, int A_rowL, int A_rowR, int A_colL, int A_colR, int B_rowL, int B_rowR, int B_colL, int B_colR) {
         this.THRESHOLD = thresh;
 
         this.A = A;
@@ -26,6 +29,7 @@ public class DaC_Algorithm extends RecursiveTask<int[][]> {
         this.B_colL = B_colL;
         this.B_colR = B_colR;
     }
+
     @Override
     protected int[][] compute() {
         if (A_m * A_n <= 0 || B_p * B_q <= 0)
@@ -46,11 +50,11 @@ public class DaC_Algorithm extends RecursiveTask<int[][]> {
         {
             int A_midRow = (A_rowR - A_rowL) / 2;
 
-            var mul1 = new DaC_Algorithm(THRESHOLD, A, B, A_rowL, A_midRow, A_colL, A_colR,
+            var mul1 = new DaC(THRESHOLD, A, B, A_rowL, A_midRow, A_colL, A_colR,
                                          B_rowL, B_rowR, B_colL, B_colR);
             mul1.fork();
 
-            var mul2 = new DaC_Algorithm(THRESHOLD, A, B,A_midRow+1, A_rowR, A_colL, A_colR,
+            var mul2 = new DaC(THRESHOLD, A, B, A_midRow + 1, A_rowR, A_colL, A_colR,
                                          B_rowL, B_rowR, B_colL, B_colR);
             mul2.fork();
 
@@ -65,11 +69,11 @@ public class DaC_Algorithm extends RecursiveTask<int[][]> {
         else if (max == B_q){
             int B_midCol = (B_colR - B_colL) / 2;
 
-            var mul1 = new DaC_Algorithm(THRESHOLD, A, B, A_rowL, A_rowR, A_colL, A_colR,
+            var mul1 = new DaC(THRESHOLD, A, B, A_rowL, A_rowR, A_colL, A_colR,
                                          B_rowL, B_rowR, B_colL, B_midCol);
             mul1.fork();
 
-            var mul2 = new DaC_Algorithm(THRESHOLD, A, B, A_rowL, A_rowR, A_colL, A_colR,
+            var mul2 = new DaC(THRESHOLD, A, B, A_rowL, A_rowR, A_colL, A_colR,
                                          B_rowL, B_rowR, B_midCol+1, B_colR);
             mul2.fork();
 
@@ -85,11 +89,11 @@ public class DaC_Algorithm extends RecursiveTask<int[][]> {
             int A_midCol = (A_colR - A_colL) / 2;
             int B_midRow = (B_rowR - B_rowL) / 2;
 
-            var mul1 = new DaC_Algorithm(THRESHOLD, A, B, A_rowL, A_rowR, A_colL, A_midCol,
+            var mul1 = new DaC(THRESHOLD, A, B, A_rowL, A_rowR, A_colL, A_midCol,
                                          B_rowL, B_midRow, B_colL, B_colR);
             mul1.fork();
 
-            var mul2 = new DaC_Algorithm(THRESHOLD, A, B, A_rowL, A_rowR, A_midCol+1, A_colR,
+            var mul2 = new DaC(THRESHOLD, A, B, A_rowL, A_rowR, A_midCol + 1, A_colR,
                                   B_midRow+1, B_rowR, B_colL, B_colR);
             mul2.fork();
 
@@ -100,6 +104,7 @@ public class DaC_Algorithm extends RecursiveTask<int[][]> {
             }
         }
     }
+
     private int[][] matrixMul() throws Exception {
         if (A_m * A_n <= 0 || B_p * B_q <= 0)
             return null;
@@ -116,6 +121,7 @@ public class DaC_Algorithm extends RecursiveTask<int[][]> {
 
         return C;
     }
+
     private static int[][] matrixSum(int[][] A, int[][] B) throws Exception {
         if (A == null || B == null)
             return null;
