@@ -83,6 +83,10 @@ public class OutputPanel extends JPanel {
                 var benchmark = new Benchmark();
                 var A = matrixA.getMatrixValues();
                 var B = matrixB.getMatrixValues();
+                if (A == null)
+                    return;
+                if (B == null)
+                    return;
 
                 int m = A.length, n = A[0].length;
                 int p = B.length, q = B[0].length;
@@ -110,6 +114,11 @@ public class OutputPanel extends JPanel {
                 var benchmark = new Benchmark();
                 int [][] A = matrixA.getMatrixValues();
                 int [][] B = matrixB.getMatrixValues();
+
+                if (A == null)
+                    return;
+                if (B == null)
+                    return;
 
                 int m = A.length, n = A[0].length;
                 int p = B.length, q = B[0].length;
