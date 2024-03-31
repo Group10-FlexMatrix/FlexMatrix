@@ -2,6 +2,7 @@ package io.github.group10.flex.matrix.UI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.DecimalFormat;
 
 public class MatrixOutputPanel extends JPanel {
     private JTextArea matrixInputArea;
@@ -40,7 +41,8 @@ public class MatrixOutputPanel extends JPanel {
 
     public void setResult(String result, double executeTime) {
         matrixInputArea.setText(result);
-        executeTimeResultLabel.setText(String.valueOf(executeTime));
+        var df = new DecimalFormat("0.###########");
+        executeTimeResultLabel.setText(String.valueOf(df.format(executeTime)));
     }
 
     public void clear() {
