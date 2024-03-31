@@ -81,9 +81,8 @@ public class Strassen {
     private static int[][] subMatrix(int[][] matrix, int startRow, int startCol, int endRow, int endCol) {
         int[][] sub = new int[endRow - startRow][endCol - startCol];
         for (int i = startRow; i < endRow; i++) {
-            for (int j = startCol; j < endCol; j++) {
-                sub[i - startRow][j - startCol] = matrix[i][j];
-            }
+            if (endCol - startCol >= 0)
+                System.arraycopy(matrix[i], startCol, sub[i - startRow], 0, endCol - startCol);
         }
         return sub;
     }
