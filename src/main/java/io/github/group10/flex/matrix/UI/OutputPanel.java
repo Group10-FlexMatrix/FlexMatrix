@@ -10,9 +10,9 @@ import java.awt.*;
 import java.util.concurrent.ForkJoinPool;
 
 public class OutputPanel extends JPanel {
-    private JButton computeNaiveButton, computeParallelButton, computeStrassenButton, clearButton;
+    private JButton computeNaiveButton, computeDaCButton, computeStrassenButton, clearButton;
     private final MatrixInputPanel matrixA, matrixB;
-    private MatrixOutputPanel naiveOutput, parallelOutput, strassenOutput;
+    private MatrixOutputPanel naiveOutput, dacOutput, strassenOutput;
     private JLabel matrixMulInfoLabel;
 
     public OutputPanel(MatrixInputPanel matrixA, MatrixInputPanel matrixB) {
@@ -28,13 +28,14 @@ public class OutputPanel extends JPanel {
 
     private void createComponents() {
         computeNaiveButton = new JButton("Compute Naive");
-        computeParallelButton = new JButton("Compute Parallel");
+        computeDaCButton = new JButton("Compute DaC");
         computeStrassenButton = new JButton("Compute Strassen");
         clearButton = new JButton("Clear");
 
         naiveOutput = new MatrixOutputPanel("Naive");
-        parallelOutput = new MatrixOutputPanel("Parallel");
+        dacOutput = new MatrixOutputPanel("DaC");
         strassenOutput = new MatrixOutputPanel("Strassen");
+
 
         matrixMulInfoLabel = new JLabel();
         matrixMulInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -51,23 +52,23 @@ public class OutputPanel extends JPanel {
         buttonPanel.add(computeNaiveButton, gbc);
         gbc.gridx = 1;
         gbc.gridy = 0;
-        buttonPanel.add(computeParallelButton, gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
+        buttonPanel.add(computeDaCButton, gbc);
+        gbc.gridx = 2;
+        gbc.gridy = 0;
         buttonPanel.add(computeStrassenButton, gbc);
         gbc.gridx = 1;
         gbc.gridy = 1;
         buttonPanel.add(clearButton, gbc);
-        gbc.gridx = 0;
+        gbc.gridx = 1;
         gbc.gridy = 2;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 1;
         buttonPanel.add(matrixMulInfoLabel, gbc);
         add(buttonPanel, BorderLayout.NORTH);
 
         JPanel outputPanel = new JPanel();
         outputPanel.setLayout(new GridLayout());
         outputPanel.add(naiveOutput);
-        outputPanel.add(parallelOutput);
+        outputPanel.add(dacOutput);
         outputPanel.add(strassenOutput);
         add(outputPanel, BorderLayout.CENTER);
     }
@@ -87,7 +88,7 @@ public class OutputPanel extends JPanel {
     private void addListeners() {
         clearButton.addActionListener(e -> {
             naiveOutput.clear();
-            parallelOutput.clear();
+            dacOutput.clear();
             strassenOutput.clear();
         });
 
@@ -113,7 +114,7 @@ public class OutputPanel extends JPanel {
             naiveOutput.setResult(Utils.matrixToString(result), input.benchmark().getExecutionTime());
         });
 
-        computeParallelButton.addActionListener(actionEvent -> {
+        computeDaCButton.addActionListener(actionEvent -> {
             var input = prepareMultiplicationInput();
             if (input == null)
                 return;
@@ -133,7 +134,7 @@ public class OutputPanel extends JPanel {
                 return;
             }
             input.benchmark().end();
-            parallelOutput.setResult(Utils.matrixToString(result), input.benchmark().getExecutionTime());
+            dacOutput.setResult(Utils.matrixToString(result), input.benchmark().getExecutionTime());
         });
 
         computeStrassenButton.addActionListener(actionEvent -> {
