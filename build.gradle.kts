@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-group = "org.example"
+group = "io.github.group10.flex.matrix"
 version = "1.0-SNAPSHOT"
 
 repositories {
