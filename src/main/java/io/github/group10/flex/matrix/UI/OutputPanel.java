@@ -147,7 +147,7 @@ public class OutputPanel extends JPanel {
             int [][] result;
             try {
                 input.benchmark().start();
-                result = Strassen.multiply(input.A(), input.B(), input.m(), input.n(), input.p(), input.q());
+                result = Strassen.multiply(input.A(), input.B());
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(OutputPanel.this, e.getMessage(),
                         "Error Calculate Strassen", JOptionPane.ERROR_MESSAGE);

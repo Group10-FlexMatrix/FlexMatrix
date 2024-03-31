@@ -2,113 +2,100 @@ package io.github.group10.flex.matrix.Algorithm;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Strassen {
-    public static int[][] multiply(int[][] a, int[][] b, int rows_A, int cols_A, int rows_B, int cols_B) {
-        int newSize = Math.max(Math.max(rows_A, cols_A), Math.max(rows_B, cols_B));
-        newSize = (int) Math.pow(2, Math.ceil(Math.log(newSize) / Math.log(2)));
+    public static int[][] multiply(int[][] A, int[][] B) {
+        int n = A.length;
 
-        int[][] paddedA = padMatrix(a, newSize);
-        int[][] paddedB = padMatrix(b, newSize);
-
-        int paddedSize = Math.max(Math.max(paddedA.length, paddedA[0].length), Math.max(paddedB.length, paddedB[0].length));
-        paddedSize = (int) Math.pow(2, Math.ceil(Math.log(paddedSize) / Math.log(2)));
-        int[][] result = new int[paddedSize][paddedSize];
-
-        strassenMultiply(paddedA, paddedB, result, 0, 0);
-
-        return result;
-    }
-
-    private static void strassenMultiply(int[][] a, int[][] b, int[][] result, int i, int j) {
-        int paddedSize = a.length;
-
-        if (paddedSize <= 64) {
-            standardMultiply(a, b, result, i, j);
+        if (n == 1) {
+            int[][] C = new int[1][1];
+            C[0][0] = A[0][0] * B[0][0];
+            return C;
         } else {
-            int halfSize = paddedSize / 2;
-            int[][] a11 = subMatrix(a, 0, 0, halfSize, halfSize);
-            int[][] a12 = subMatrix(a, 0, halfSize, halfSize, paddedSize);
-            int[][] a21 = subMatrix(a, halfSize, 0, paddedSize, halfSize);
-            int[][] a22 = subMatrix(a, halfSize, halfSize, paddedSize, paddedSize);
+            int newSize = n / 2;
+            int[][] a11 = new int[newSize][newSize];
+            int[][] a12 = new int[newSize][newSize];
+            int[][] a21 = new int[newSize][newSize];
+            int[][] a22 = new int[newSize][newSize];
 
-            int[][] b11 = subMatrix(b, 0, 0, halfSize, halfSize);
-            int[][] b12 = subMatrix(b, 0, halfSize, halfSize, paddedSize);
-            int[][] b21 = subMatrix(b, halfSize, 0, paddedSize, halfSize);
-            int[][] b22 = subMatrix(b, halfSize, halfSize, paddedSize, paddedSize);
+            int[][] b11 = new int[newSize][newSize];
+            int[][] b12 = new int[newSize][newSize];
+            int[][] b21 = new int[newSize][newSize];
+            int[][] b22 = new int[newSize][newSize];
 
-            /*try (var executor = Executors.newFixedThreadPool(7)) {
-                executor.execute(() -> strassenMultiply(addMatrices(a11, a22), addMatrices(b11, b22), result, i, j));
-                executor.execute(() -> strassenMultiply(addMatrices(a21, a22), b11, result, i + halfSize, j));
-                executor.execute(() -> strassenMultiply(a11, subtractMatrices(b12, b22), result, i, j + halfSize));
-                executor.execute(() -> strassenMultiply(a22, subtractMatrices(b21, b11), result, i + halfSize, j + halfSize));
-                executor.execute(() -> strassenMultiply(addMatrices(a11, a12), b22, result, i, j));
-                executor.execute(() -> strassenMultiply(subtractMatrices(a21, a11), addMatrices(b11, b12), result, i + halfSize, j));
-                executor.execute(() -> strassenMultiply(subtractMatrices(a12, a22), addMatrices(b21, b22), result, i, j));
-                executor.wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }*/
+            for (int i = 0; i < newSize; i++) {
+                for (int j = 0; j < newSize; j++) {
+                    a11[i][j] = A[i][j];
+                    a12[i][j] = A[i][j + newSize];
+                    a21[i][j] = A[i + newSize][j];
+                    a22[i][j] = A[i + newSize][j + newSize];
 
-            ExecutorService executor = Executors.newFixedThreadPool(7);
-
-            executor.execute(() -> strassenMultiply(addMatrices(a11, a22), addMatrices(b11, b22), result, i, j));
-            executor.execute(() -> strassenMultiply(addMatrices(a21, a22), b11, result, i + halfSize, j));
-            executor.execute(() -> strassenMultiply(a11, subtractMatrices(b12, b22), result, i, j + halfSize));
-            executor.execute(() -> strassenMultiply(a22, subtractMatrices(b21, b11), result, i + halfSize, j + halfSize));
-            executor.execute(() -> strassenMultiply(addMatrices(a11, a12), b22, result, i, j));
-            executor.execute(() -> strassenMultiply(subtractMatrices(a21, a11), addMatrices(b11, b12), result, i + halfSize, j));
-            executor.execute(() -> strassenMultiply(subtractMatrices(a12, a22), addMatrices(b21, b22), result, i, j));
-
-            executor.shutdown();
-            while (!executor.isTerminated()) {}
-        }
-    }
-
-    private static void standardMultiply(int[][] a, int[][] b, int[][] result, int i, int j) {
-        int m = a.length;
-        int n = b[0].length;
-        int o = a[0].length;
-        for (int x = 0; x < m; x++) {
-            for (int y = 0; y < n; y++) {
-                for (int z = 0; z < o; z++) {
-                    result[i + x][j + y] += a[x][z] * b[z][y];
+                    b11[i][j] = B[i][j];
+                    b12[i][j] = B[i][j + newSize];
+                    b21[i][j] = B[i + newSize][j];
+                    b22[i][j] = B[i + newSize][j + newSize];
                 }
             }
+
+            ExecutorService executor = Executors.newFixedThreadPool(8);
+            int[][][] results = new int[7][][];
+
+            executor.submit(() -> results[0] = multiply(add(a11, a22), add(b11, b22)));
+            executor.submit(() -> results[1] = multiply(add(a21, a22), b11));
+            executor.submit(() -> results[2] = multiply(a11, sub(b12, b22)));
+            executor.submit(() -> results[3] = multiply(a22, sub(b21, b11)));
+            executor.submit(() -> results[4] = multiply(add(a11, a12), b22));
+            executor.submit(() -> results[5] = multiply(sub(a21, a11), add(b11, b12)));
+            executor.submit(() -> results[6] = multiply(sub(a12, a22), add(b21, b22)));
+
+            executor.shutdown();
+            try {
+                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            int[][] c11 = add(sub(add(results[0], results[3]), results[4]), results[6]);
+            int[][] c12 = add(results[2], results[4]);
+            int[][] c21 = add(results[1], results[3]);
+            int[][] c22 = add(sub(add(results[0], results[2]), results[1]), results[5]);
+
+            // Combine sub-matrices to form the result
+            int[][] C = new int[n][n];
+            for (int i = 0; i < newSize; i++) {
+                for (int j = 0; j < newSize; j++) {
+                    C[i][j] = c11[i][j];
+                    C[i][j + newSize] = c12[i][j];
+                    C[i + newSize][j] = c21[i][j];
+                    C[i + newSize][j + newSize] = c22[i][j];
+                }
+            }
+
+            return C;
         }
     }
 
-    private static int[][] subMatrix(int[][] matrix, int startRow, int startCol, int endRow, int endCol) {
-        int[][] sub = new int[endRow - startRow][endCol - startCol];
-        for (int i = startRow; i < endRow; i++) {
-            if (endCol - startCol >= 0)
-                System.arraycopy(matrix[i], startCol, sub[i - startRow], 0, endCol - startCol);
-        }
-        return sub;
-    }
-
-    private static int[][] addMatrices(int[][] a, int[][] b) {
-        int rows = a.length;
-        int cols = a[0].length;
-        int[][] result = new int[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                result[i][j] = a[i][j] + b[i][j];
+    static int[][] add(int[][] A, int[][] B) {
+        int n = A.length;
+        int[][] C = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                C[i][j] = A[i][j] + B[i][j];
             }
         }
-        return result;
+        return C;
     }
 
-    private static int[][] subtractMatrices(int[][] a, int[][] b) {
-        int rows = a.length;
-        int cols = a[0].length;
-        int[][] result = new int[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                result[i][j] = a[i][j] - b[i][j];
+    static int[][] sub(int[][] A, int[][] B) {
+        int n = A.length;
+        int[][] C = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                C[i][j] = A[i][j] - B[i][j];
             }
         }
-        return result;
+        return C;
     }
 
     public static int[][] padMatrix(int[][] matrix, int newSize) {
